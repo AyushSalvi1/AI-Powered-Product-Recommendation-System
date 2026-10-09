@@ -154,7 +154,7 @@ class SearchFilters extends StatelessWidget {
                       Switch(
                         value: showDiscountedOnly,
                         onChanged: onDiscountedOnlyChanged,
-                        activeColor: theme.colorScheme.primary,
+                        activeThumbColor: theme.colorScheme.primary,
                       ),
                     ],
                   ),

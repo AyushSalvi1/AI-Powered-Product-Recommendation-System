@@ -15,6 +15,11 @@ import 'package:gap/gap.dart';
 import 'package:flutter_ecommerce/common/widgets/custom_cached_network_image.dart';
 import 'package:flutter_ecommerce/features/product/models/product.dart';
 import 'package:flutter_ecommerce/features/product/widgets/product_price.dart';
+import 'package:flutter_ecommerce/features/wishlist/blocs/wishlist_bloc/wishlist_bloc.dart';
+import 'package:flutter_ecommerce/features/wishlist/blocs/wishlist_bloc/wishlist_state.dart';
+import 'package:flutter_ecommerce/features/price_tracking/widgets/price_history_widget.dart';
+import 'package:flutter_ecommerce/features/review/widgets/product_reviews_section.dart';
+import 'package:flutter_ecommerce/features/comparison/pages/comparison_page.dart';
 import 'package:go_router/go_router.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -56,12 +61,39 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.share_outlined),
-                  onPressed: () {},
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Link copied: ${product!.name}")),
+                    );
+                  },
                 ),
-                IconButton(
-                  icon: Icon(Icons.favorite_border_outlined),
-                  onPressed: () {},
+                BlocBuilder<WishlistBloc, WishlistState>(
+                  builder: (context, state) {
+                    final isWishlisted = (state is WishlistLoadedState) &&
+                        state.isWishlisted(product!.id);
+                    return IconButton(
+                      icon: Icon(
+                        isWishlisted ? Icons.favorite : Icons.favorite_border_outlined,
+                        color: isWishlisted ? Colors.red : null,
+                      ),
+                      onPressed: () {
+                        context.read<WishlistBloc>().add(
+                              ToggleWishlistEvent(product!),
+                            );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isWishlisted
+                                  ? "Removed from wishlist"
+                                  : "Added to wishlist",
+                            ),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
@@ -73,6 +105,29 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   _buildImageCarousel(),
                   _buildProductDetail(),
                   _buildSpecifications(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => ComparisonPage(
+                              productTitle: product!.name,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.compare_arrows_rounded),
+                      label: const Text("Compare Across Amazon, Flipkart & Croma"),
+                    ),
+                  ),
+                  PriceHistoryWidget(product: product!),
+                  ProductReviewsSection(productId: product!.id),
                 ],
               ),
             ),

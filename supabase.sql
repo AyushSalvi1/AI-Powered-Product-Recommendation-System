@@ -161,3 +161,83 @@ BEGIN
   ORDER BY o.created_at DESC;
 END;
 $$ LANGUAGE plpgsql;
+
+-- ====================================================================
+-- ENHANCEMENTS: Wishlist, Reviews, Price History, Alerts, and RLS
+-- ====================================================================
+
+CREATE TABLE IF NOT EXISTS public.wishlists (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  product_id uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT wishlists_pkey PRIMARY KEY (id),
+  CONSTRAINT wishlists_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT wishlists_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE,
+  CONSTRAINT wishlists_user_product_unique UNIQUE (user_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.product_reviews (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  product_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  rating double precision NOT NULL CHECK (rating >= 1.0 AND rating <= 5.0),
+  comment text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT product_reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT product_reviews_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE,
+  CONSTRAINT product_reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT product_reviews_user_product_unique UNIQUE (product_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.price_history (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  product_id uuid NOT NULL,
+  price double precision NOT NULL,
+  retailer character varying NOT NULL DEFAULT 'ShopWave',
+  recorded_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT price_history_pkey PRIMARY KEY (id),
+  CONSTRAINT price_history_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_price_history_product_time ON public.price_history(product_id, recorded_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.price_alerts (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  product_id uuid NOT NULL,
+  target_price double precision NOT NULL,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT price_alerts_pkey PRIMARY KEY (id),
+  CONSTRAINT price_alerts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT price_alerts_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS public.user_preferences (
+  user_id uuid NOT NULL,
+  budget_preference double precision,
+  preferred_categories text[] DEFAULT '{}',
+  preferred_retailers text[] DEFAULT '{}',
+  price_drop_alerts_enabled boolean DEFAULT true,
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT user_preferences_pkey PRIMARY KEY (user_id),
+  CONSTRAINT user_preferences_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
+);
+
+-- Row Level Security (RLS)
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.addresses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.carts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.product_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wishlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.product_reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.price_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.price_alerts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
+

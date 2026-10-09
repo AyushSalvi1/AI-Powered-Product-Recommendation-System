@@ -25,6 +25,9 @@ import 'package:flutter_ecommerce/features/product/models/product.dart';
 import 'package:flutter_ecommerce/features/product/pages/product_detail_page.dart';
 import 'package:flutter_ecommerce/features/user/pages/user_account.dart';
 import 'package:flutter_ecommerce/features/user/pages/vendor_page.dart';
+import 'package:flutter_ecommerce/features/wishlist/pages/wishlist_page.dart';
+import 'package:flutter_ecommerce/features/ai_assistant/pages/ai_assistant_page.dart';
+import 'package:flutter_ecommerce/features/visual_search/pages/visual_search_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouteName {
@@ -48,6 +51,10 @@ class AppRouteName {
   static const String categories = "categories";
   static const String productByCategory = "product-by-category";
   static const String authGuard = "auth-guard";
+  static const String wishlist = "wishlist";
+  static const String aiAssistant = "ai-assistant";
+  static const String visualSearch = "visual-search";
+  static const String comparison = "comparison";
 }
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -147,8 +154,26 @@ class AppRoute {
                                 categoryName: categoryName,
                               );
                             },
-                          )
+                          ),
                         ]),
+                    GoRoute(
+                      parentNavigatorKey: rootNavigatorKey,
+                      path: AppRouteName.wishlist.path,
+                      name: AppRouteName.wishlist,
+                      builder: (context, state) => const WishlistPage(),
+                    ),
+                    GoRoute(
+                      parentNavigatorKey: rootNavigatorKey,
+                      path: AppRouteName.aiAssistant.path,
+                      name: AppRouteName.aiAssistant,
+                      builder: (context, state) => const AIAssistantPage(),
+                    ),
+                    GoRoute(
+                      parentNavigatorKey: rootNavigatorKey,
+                      path: AppRouteName.visualSearch.path,
+                      name: AppRouteName.visualSearch,
+                      builder: (context, state) => const VisualSearchPage(),
+                    ),
                   ]),
             ],
           ),

@@ -1,193 +1,166 @@
-# ShopWave - E-Commerce Platform
+# ShopWave — AI-Powered E-Commerce Recommendation & Multi-Store Platform
 
-ShopWave is an e-commerce mobile application built with Flutter and Supabase. It offers a shopping experience with a clean UI and essential e-commerce features. The platform supports multiple user roles (Customer, Vendor, Admin) with role-specific functionalities.
+ShopWave is an intelligent e-commerce mobile application and multi-retailer recommendation engine built with **Flutter**, **Supabase (PostgreSQL with RLS)**, and a **FastAPI AI Orchestration Backend**.
 
-## 📱 Screenshots
+Beyond traditional shopping capabilities, ShopWave provides a multi-retailer intelligence layer that searches across **Amazon India**, **Flipkart**, **Croma**, and **ShopWave**, provides side-by-side comparative matrices, conversational AI shopping assistance, image-based visual product matching, historical price tracking with drop alerts, and complete offline resiliency.
 
-### Customer Experience
+---
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center;">
-  <img src="screenshots/home.png" alt="Home Screen" width="200" style="margin: 10px;"/>
-  <img src="screenshots/search.png" alt="Search" width="200" style="margin: 10px;"/>
-  <img src="screenshots/cart.png" alt="Shopping Cart" width="200" style="margin: 10px;"/>
-  <img src="screenshots/normal_user_account.png" alt="User Account" width="200" style="margin: 10px;"/>
-  <img src="screenshots/category.png" alt="category page" width="200" style="margin: 10px;"/>
-  <img src="screenshots/detail_page.png" alt="detail page" width="200" style="margin: 10px;"/>
-  <img src="screenshots/checkout.png" alt="Checkout " width="200" style="margin: 10px;"/>
-  <img src="screenshots/order_confirmed.png" alt="Order Confirmation" width="200" style="margin: 10px;"/>
+## 🌟 Key Capabilities & New Features
 
-  <!-- <img src="screenshots/myorders.png" alt="My Orders" width="200" style="margin: 10px;"/> -->
+### 1. 🤖 AI Shopping Assistant (`lib/features/ai_assistant`)
+- **Natural Language Parsing**: Understands queries with budget limits (e.g. *"Best smartphone under 20k with good camera"*), intent, brand, and specifications.
+- **Transparent Explanations**: Accompanies every recommendation with justifiable rationale (e.g. *"Ranked #1 due to highest Bayesian rating score and 18% savings vs competitors"*).
+- **Interactive Chat Interface**: Quick suggestion chips, direct product preview cards, side-by-side compare shortcuts, and merchant redirects.
 
-</div>
+### 2. 🌐 Multi-Website Product Search (`lib/features/multi_retailer`)
+- **Authorized Feeds & Retailers**: Aggregates product listings from **Amazon India**, **Flipkart**, **Croma**, and **ShopWave**.
+- **Unified Schema**: Normalizes cross-store titles, categories, pricing, discounts, ratings, review counts, and stock availability.
+- **Store Badges**: Distinct visual badges for each authorized retailer with store branding.
+- **Affiliate & Direct Redirects**: Working merchant redirection powered by `url_launcher` with tracking identifiers and fallback safe browser opening.
 
-### Authentication
+### 3. ⚖️ Side-by-Side Product Comparison (`lib/features/comparison`)
+- **Comparison Matrix**: Side-by-side analysis of key attributes:
+  - Best Price & Savings relative to MRP.
+  - User review ratings and confidence.
+  - Delivery timelines and warranty/return terms.
+  - Key specifications.
+- **Top 3 Overall & Store Best Picks**: Surfaces the single best offer per merchant and summarizes the final verdict.
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center;">
-  <img src="screenshots/signin.png" alt="Sign In" width="200" style="margin: 10px;"/>
-  <img src="screenshots/signup.png" alt="Sign Up" width="200" style="margin: 10px;"/>
-</div>
+### 4. 📷 Image-Based Visual Search (`lib/features/visual_search`)
+- **Camera & Gallery Support**: Snap a photo or upload from the device gallery.
+- **Attribute & Embedding Extraction**: Detects visual attributes, categories, and tags.
+- **Cross-Retailer Visual Matching**: Computes visual similarity scores and presents matched catalog items.
 
-### Admin Dashboard
+### 5. 🎯 Personalized Hybrid Recommendation Engine (`backend/services/recommendation_service.py`)
+- **Multi-Factor Scoring**:
+  $$\text{Score} = w_{\text{rel}} \cdot \text{Relevance} + w_{\text{price}} \cdot \text{PriceScore} + w_{\text{rating}} \cdot \text{BayesianRating} + w_{\text{history}} \cdot \text{HistoryBonus}$$
+- **Bayesian Rating Confidence**: Incorporates review count confidence into ratings so high-volume 4.5★ beats low-volume 5.0★.
+- **Hard Constraints**: Strict enforcement of budget maximums and category requirements.
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center;">
-  <img src="screenshots/admin/admin_page.png" alt="Admin Dashboard" width="200" style="margin: 10px;"/>
-  <img src="screenshots/admin/ad_product.png" alt="Add Product" width="200" style="margin: 10px;"/>
-  <img src="screenshots/admin/category_page.png" alt="Category Management" width="200" style="margin: 10px;"/>
-  <img src="screenshots/admin/order_management.png" alt="Order Management" width="200" style="margin: 10px;"/>
-</div>
+### 6. 📉 Price Tracking & Drop Alerts (`lib/features/price_tracking`)
+- **Interactive Price Timeline**: 30-day timestamped pricing graph with lowest, highest, and average metrics.
+- **Trend Detection**: Automatically identifies if prices are dropping, stable, or rising.
+- **Price-Drop Subscriptions**: Toggle alerts for target price drops backed by database subscriptions (`price_alerts`).
 
-## ✨ Features
+### 7. 🛍️ Complete Shopping Core
+- **Wishlist CRUD** (`lib/features/wishlist`): Add/remove products with instant optimistic updates, offline caching, and heart overlays on cards.
+- **Product Reviews & Ratings** (`lib/features/review`): Interactive star rating bar chart, review count distribution, and verified submission modal.
+- **Advanced Filtering & Sorting** (`lib/features/search`): Multi-store toggle, price range min/max sliders, and sort by relevance, price, or rating.
+- **User Profile & Preferences** (`lib/features/user/pages/edit_profile_page.dart`): Update profile names, set default shopping budget, and select preferred retailers.
+- **Operational Customer Modals**: Interactive dialogs for Saved Payment Methods, FAQs, and Customer Support.
 
-### For Customers
-- **User Authentication** - Sign-up and sign-in functionality
-- **Product Browsing** - Browse products by categories
-- **Search Functionality** - Find products by name
-- **Shopping Cart** - Add products in your cart
-- **Order Placement** - Place orders with shipping address
-- **Order History** - View past orders and their status
-- **Address Management** - Save and manage shipping addresses
+### 8. 📴 Zero-Connectivity Offline Resiliency (`lib/core/services/offline_cache_service.dart`)
+- Full offline caching using `SharedPreferences`.
+- Seamlessly retrieves cached catalog items, wishlist state, user preferences, and search history during network outages.
 
-### For Vendors
-- **Basic Product Management** - Add products with details
-- **Order Management** - View orders for their products
+---
 
-### For Administrators
-- **Category Management** - Create product categories with images
-- **Product Management** - Add products to the platform
-- **Order Oversight** - View all orders in the system
+## 🛠️ Architecture & Tech Stack
 
-## 🛠️ Tech Stack
+```
+ShopWave Architecture
+├── Flutter Mobile App (Frontend)
+│   ├── State Management: flutter_bloc 9.0 (UserBloc, WishlistBloc, SearchBloc, etc.)
+│   ├── Service Locator: get_it (Dependency Injection)
+│   ├── Navigation: go_router
+│   ├── Networking & Caching: http, shared_preferences, flutter_dotenv
+│   └── Deep Links & Launching: url_launcher
+│
+├── FastAPI AI Orchestrator (Backend)
+│   ├── Framework: FastAPI + Uvicorn + Pydantic v2
+│   ├── Recommendation Service: Hybrid scoring + Bayesian confidence
+│   ├── Assistant Service: Natural language intent & budget parsing
+│   ├── Providers: Amazon India, Flipkart, Croma, ShopWave adapters
+│   └── Comparison & Visual Search: Multi-attribute matrix algorithms
+│
+└── Supabase (Cloud Database & Auth)
+    ├── PostgreSQL with Row Level Security (RLS)
+    ├── Auth: Supabase Auth with custom user roles (customer, vendor, admin)
+    └── Tables: users, products, categories, carts, orders, addresses,
+                wishlists, product_reviews, price_history, price_alerts, user_preferences
+```
 
-- **Frontend**: Flutter
-- **State Management**: Flutter Bloc
-- **Backend**: Supabase
-- **Authentication**: Supabase Auth
-- **Database**: PostgreSQL (via Supabase)
-- **Storage**: Supabase Storage
-- **Routing**: Go Router
-- **UI Components**: Material Design
+---
 
+## 🗄️ Database Enhancements (`supabase/migrations/`)
 
-## 🗄️ Database Structure
+Added complete PostgreSQL schema and RLS policies in `supabase/migrations/01_ai_ecommerce_enhancements.sql`:
 
-The application uses Supabase (PostgreSQL) as its database with the following structure:
+1. **`wishlists`**: User wishlist storage with unique composite index `(user_id, product_id)`.
+2. **`product_reviews`**: Verified user reviews, ratings (1-5), and timestamps.
+3. **`price_history`**: Historical price tracking timeline entries for analytics.
+4. **`price_alerts`**: User price-drop subscriptions with target thresholds.
+5. **`user_preferences`**: User budget limits, preferred retailers, and alert settings.
+6. **Row Level Security (RLS)**: Strict tenant isolation enabled on all tables allowing users to modify only their own records.
 
-### User Roles
-
-The system supports three user roles, defined in the `users` table:
-
-- **Customer** - Default role for regular users who can browse products and make purchases
-- **Vendor** - Can add products and view their orders
-- **Admin** - Can manage categories, products, and view all orders
-
-### Key Tables
-
-- **users** - Stores user information including authentication details and role
-- **products** - Contains product information linked to vendors and categories
-- **categories** - Stores product categories
-- **carts** - Manages shopping cart items for users
-- **orders** - Tracks order information including status and payment details
-  - Order statuses: pending, confirmed, delivered, cancelled
-  - Payment statuses: paid, unpaid, refunded
-  - Payment method: cash_on_delivery
-- **order_items** - Contains individual items within an order
-- **addresses** - Stores shipping addresses for users
-- **product_images** - Contains images associated with products
-
-### Custom Functions
-
-The database includes custom PostgreSQL functions like `get_vendor_orders` that efficiently retrieve order data for vendors, including related product information and shipping details.
+---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### 1. Prerequisites
+- **Flutter SDK**: 3.27+ / 3.47+
+- **Python**: 3.10+ (for FastAPI backend)
+- **Supabase Account**: (URL and Anon Key)
 
-- Flutter SDK (3.6.2 or higher)
-- Dart SDK (3.6.2 or higher)
-- Supabase account
-- IDE (VS Code, Android Studio, etc.)
-
-### Installation
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/sanam-tamang/flutter_ecommerce.git
-   cd flutter_ecommerce
-   ```
-
-2. Install dependencies
-   ```bash
-   flutter pub get
-   ```
-
-3. Create a `.env` file in the root directory with your Supabase credentials
-   ```
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_ANNONKEY=your_supabase_anon_key
-   ```
-
-4. Run the app
-   ```bash
-   flutter run
-   ```
-
-## 📋 Project Structure
-
-```
-lib/
-├── common/            # Common utilities, widgets, and theme
-│   ├── theme/         # App theme configuration
-│   ├── utils/         # Utility functions
-│   └── widgets/       # Shared widgets
-├── core/              # Core functionality and state management
-│   ├── app/           # App initialization
-│   ├── blocs/         # Global state management
-│   ├── failure/       # Error handling
-│   ├── repositories/  # Data access layer
-│   └── state/         # State management utilities
-├── features/          # Feature modules
-│   ├── address/       # Address management
-│   ├── auth/          # Authentication
-│   ├── cart/          # Shopping cart
-│   ├── category/      # Product categories
-│   ├── home/          # Home page
-│   ├── order/         # Order management
-│   ├── product/       # Product browsing and details
-│   ├── search/        # Search functionality
-│   └── user/          # User profile and settings
-├── main.dart          # Entry point
-└── routes.dart        # App routes
+### 2. Configure Environment (`.env`)
+Create or edit `.env` in the repository root:
+```env
+SUPABASE_URL=https://your-supabase-project.supabase.co
+SUPABASE_ANNONKEY=your-supabase-anon-key
+BACKEND_API_URL=http://10.0.2.2:8000   # Use http://localhost:8000 for web/desktop, 10.0.2.2 for Android emulator
 ```
 
-Each feature follows a clean architecture pattern with:
-- **blocs/** - State management
-- **models/** - Data models
-- **pages/** - UI screens
-- **repositories/** - Data access
-- **widgets/** - Feature-specific UI components
+### 3. Run FastAPI AI Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+Interactive Swagger API documentation will be available at: `http://localhost:8000/docs`
 
-## 🤝 Contributing
+### 4. Run Flutter Mobile App
+```bash
+flutter pub get
+flutter run
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+---
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🧪 Automated Testing
 
-## 📝 Features to be Added
+Both the backend and Flutter frontend include automated test suites:
 
-The following features still need to be implemented:
+### Running Flutter Tests
+```bash
+flutter test
+```
+- **18 unit and widget tests** covering:
+  - `WishlistBloc` state machine and optimistic updates
+  - `MultiRetailerProductModel` JSON serialization and fallback parsing
+  - `AIAssistantRepository` budget and intent extraction
+  - `OfflineCacheService` local caching and preference retention
+  - `RetailerBadge` widget styling across Amazon, Flipkart, and Croma
 
-- **User Profile Editing** - Allow users to edit their profile information
-- **Enhanced Product Management** - More comprehensive product editing capabilities
-- **Payment Gateway Integration** - Currently only cash on delivery is supported
-- **Order Status Management** - Allow vendors/admins to update order status
-- **User Management** - Admin functionality to manage users
-- **Product Reviews** - Allow customers to rate and review products
-- **UI Enhancements** - Improve the user interface and add animations
-- **Wishlist** - Allow users to save products for later
-- **Advanced Search** - Implement filters and sorting options
+### Running Backend Tests
+```bash
+python -m pytest backend/tests/test_backend.py
+```
+- **6 passed unit tests** covering:
+  - Multi-retailer aggregation and filtering
+  - Bayesian rating score computation
+  - Hard constraint enforcement (budget ceilings)
+  - Side-by-side comparison matrix generation
+  - Natural language assistant intent parsing
+  - Historical price analytics and drop alerts
 
+### Analyzer Status
+```bash
+flutter analyze
+```
+- **0 errors, 0 warnings** across the entire codebase.
 
+---
+
+## 📄 License
+This project is licensed under the MIT License.

@@ -22,17 +22,25 @@ import 'package:flutter_ecommerce/features/product/blocs/product_by_category_blo
 import 'package:flutter_ecommerce/features/search/blocs/search_bloc/search_bloc.dart';
 import 'package:flutter_ecommerce/features/user/blocs/user_bloc/user_bloc.dart';
 import 'package:flutter_ecommerce/routes.dart';
+import 'package:flutter_ecommerce/features/wishlist/blocs/wishlist_bloc/wishlist_bloc.dart';
+import 'package:flutter_ecommerce/features/wishlist/blocs/wishlist_bloc/wishlist_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
-  final url = dotenv.get('SUPABASE_URL');
-  final annonKey = dotenv.get('SUPABASE_ANNONKEY');
-  await Supabase.initialize(
-    url: url,
-    anonKey: annonKey,
-  );
+  try {
+    await dotenv.load();
+  } catch (_) {}
+
+  final url = dotenv.maybeGet('SUPABASE_URL') ?? 'https://xyzcompany.supabase.co';
+  final annonKey = dotenv.maybeGet('SUPABASE_ANNONKEY') ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake_key';
+
+  try {
+    await Supabase.initialize(
+      url: url,
+      anonKey: annonKey,
+    );
+  } catch (_) {}
 
   await init();
   runApp(const RestartWidget(child: MyApp()));
@@ -54,6 +62,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => sl<CurrentShippingAddressBloc>()),
         BlocProvider(create: (context) => sl<ProductByCategoryBloc>()),
         BlocProvider(create: (context) => sl<SearchBloc>()),
+        BlocProvider(
+          create: (context) => sl<WishlistBloc>()..add(const LoadWishlistEvent()),
+        ),
         BlocProvider(
             create: (context) =>
                 sl<GetVendorOrderBloc>()..add(GetVendorOrderEvent.get())),

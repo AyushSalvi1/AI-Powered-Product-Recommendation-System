@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ecommerce/dependency_injection.dart';
 import 'package:flutter_ecommerce/features/search/blocs/search_bloc/search_bloc.dart';
+import 'package:flutter_ecommerce/features/visual_search/pages/visual_search_page.dart';
 
 class SearchField extends StatelessWidget {
   const SearchField({
@@ -29,7 +30,7 @@ class SearchField extends StatelessWidget {
         controller: _searchController,
         style: Theme.of(context).textTheme.bodyLarge,
         decoration: InputDecoration(
-          hintText: "Search for products...",
+          hintText: "Search products or ask AI...",
           hintStyle: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
           ),
@@ -38,20 +39,37 @@ class SearchField extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary,
             size: 22,
           ),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
+          suffixIcon: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_searchController.text.isNotEmpty)
+                IconButton(
                   icon: Icon(
                     Icons.close_rounded,
                     size: 20,
-                    color:
-                        Theme.of(context).colorScheme.onSurface.withAlpha(180),
+                    color: Theme.of(context).colorScheme.onSurface.withAlpha(180),
                   ),
                   onPressed: () {
                     _searchController.clear();
                     sl<SearchBloc>().add(const SearchEvent.clear());
                   },
-                )
-              : null,
+                ),
+              IconButton(
+                tooltip: "Image Visual Search",
+                icon: Icon(
+                  Icons.camera_alt_outlined,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const VisualSearchPage()),
+                  );
+                },
+              ),
+            ],
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -70,8 +88,6 @@ class SearchField extends StatelessWidget {
               width: 1.5,
             ),
           ),
-          // filled: true,
-          // fillColor: Theme.of(context).colorScheme.surface,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 12,
